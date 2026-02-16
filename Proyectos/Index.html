@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arena ASCII Final</title>
+<style>
+  body {
+    font-family: monospace;
+    background-color: #222;
+    color: #eee;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .arena-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+    border: 2px solid #555;
+    padding: 30px 0; /* Un poco más de espacio vertical */
+    background-color: #333;
+    overflow: hidden;
+  }
+
+  .fighter-box {
+    width: 40%;
+    position: relative; /* Importante para que los efectos no se salgan */
+  }
+
+  pre.ascii-art {
+    font-size: 16px;
+    font-weight: bold;
+    transition: color 0.2s;
+    z-index: 2; position: relative;
+  }
+
+  #hero-art { color: cyan; }
+  #monster-art { color: red; }
+
+  .stats { font-size: 1.2em; margin-top: 10px; }
+  .hp-bar { color: lightgreen; font-weight: bold; }
+  .pot-count { color: yellow; }
+
+  #battle-log {
+    height: 150px;
+    overflow-y: auto;
+    border: 2px solid #555;
+    background-color: #111;
+    text-align: left;
+    padding: 10px;
+    font-size: 0.9em;
+  }
+  #battle-log p { margin: 4px 0; border-bottom: 1px solid #333; }
+
+  button {
+    padding: 15px 30px; font-size: 1.2em; margin-top: 20px; cursor: pointer;
+    background-color: #4CAF50; color: white; border: none; border-radius: 5px;
+  }
+
+  /* --- ZONA DE ANIMACIONES --- */
+
+  /* 1. Partículas de cura (Los símbolos +) */
+  .heal-particles {
+    position: absolute;
+    top: 20%; 
+    font-size: 24px;
+    font-weight: bold;
+    color: #0f0; /* Verde brillante */
+    opacity: 0; /* Invisibles por defecto */
+    pointer-events: none;
+  }
+  
+  #heal-left { left: 10px; }
+  #heal-right { right: 10px; }
+
+  /* La animación de subir y desaparecer */
+  .anim-curacion {
+    animation: float-up 1s ease-out;
+  }
+
+  @keyframes float-up {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-30px); opacity: 0; }
+  }
+
+  /* 2. Ataques y Daño */
+  .anim-ataque-heroe { animation: lunge-right 0.3s ease-in-out; }
+  .anim-ataque-monstruo { animation: lunge-left 0.3s ease-in-out; }
+  
+  .anim-dano {
+    animation: shake 0.3s ease-in-out;
+    color: white !important;
+  }
+
+  @keyframes lunge-right {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(50px); }
+    100% { transform: translateX(0); }
+  }
+
+  @keyframes lunge-left {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-50px); }
+    100% { transform: translateX(0); }
+  }
+
+  @keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    100% { transform: translate(0, 0) rotate(0); }
+  }
+
+</style>
+</head>
+<body>
+
+  <h1>⚔️ ARENA FINAL ⚔️</h1>
+
+  <div class="arena-container">
+    <div class="fighter-box">
+        <h2 style="color:cyan">HÉROE</h2>
+        
+        <div id="heal-left" class="heal-particles">+<br>+</div>
+        <div id="heal-right" class="heal-particles">+<br>+</div>
+
+        <pre class="ascii-art" id="hero-art">
+ O 
+/|\ 
+/ \ 
+        </pre>
+        <div class="stats">
+            ❤️ HP: <span id="hero-hp" class="hp-bar">100</span><br>
+            🧪 Pociones: <span id="hero-pots" class="pot-count">3</span>
+        </div>
+    </div>
+
+    <div class="fighter-box">
+        <h2 style="color:red">MONSTRUO</h2>
+        <pre class="ascii-art" id="monster-art">
+(ºOº)
+ / \ 
+        </pre>
+        <div class="stats">❤️ HP: <span id="monster-hp" class="hp-bar">100</span></div>
+    </div>
+  </div>
+
+  <div id="battle-log"><p>Pulsa INICIAR...</p></div>
+  <button onclick="iniciarCombate()">INICIAR COMBATE</button>
+
+<script>
+let heroe = { vida: 100, pociones: 3 };
+let monstruo = { vida: 100 };
+let timer;
+
+function d20() { return Math.floor(Math.random() * 20) + 1; }
+
+function logHTML(msg, color) {
+    const box = document.getElementById('battle-log');
+    box.innerHTML += `<p style="color:${color}">${msg}</p>`;
+    box.scrollTop = box.scrollHeight;
+}
+
+// Función para activar animaciones CSS
+function triggerAnim(id, clase) {
+    let el = document.getElementById(id);
+    el.classList.remove(clase);
+    void el.offsetWidth; // Reinicio mágico del CSS
+    el.classList.add(clase);
+    
+    // Quita la clase cuando termine la animación (aprox 1s)
+    setTimeout(() => {
+        el.classList.remove(clase);
+    }, 1000); 
+}
+
+function turno() {
+    // --- TURNO HÉROE ---
+    // IA: Se cura si tiene menos de 40 de vida
+    if (heroe.vida < 40 && heroe.pociones > 0) {
+        heroe.vida += 30;
+        if(heroe.vida > 100) heroe.vida = 100; // No pasar de 100
+        heroe.pociones--;
+        
+        logHTML("✨ ¡Poción usada! (+30 HP)", "cyan");
+        
+        // ANIMACIÓN DE CURA (Las cruces verdes)
+        triggerAnim('heal-left', 'anim-curacion');
+        triggerAnim('heal-right', 'anim-curacion');
+        
+    } else {
+        // Si no se cura, ataca
+        let dano = d20();
+        monstruo.vida -= dano;
+        logHTML(`⚔️ Héroe ataca: -${dano} HP`, "white");
+        
+        // Animación golpe
+        triggerAnim('hero-art', 'anim-ataque-heroe');
+        setTimeout(() => triggerAnim('monster-art', 'anim-dano'), 150);
+    }
+    
+    actualizarUI(); // Actualizamos números inmediatamente
+
+    // --- TURNO MONSTRUO ---
+    if (monstruo.vida > 0) {
+        setTimeout(() => {
+            if (monstruo.vida <= 0) return;
+            
+            let danoM = d20();
+            heroe.vida -= danoM;
+            logHTML(`👹 Monstruo ataca: -${danoM} HP`, "orange");
+            
+            triggerAnim('monster-art', 'anim-ataque-monstruo');
+            setTimeout(() => triggerAnim('hero-art', 'anim-dano'), 150);
+            
+            actualizarUI();
+            chequearFinal();
+        }, 600); 
+    } else {
+        actualizarUI();
+        chequearFinal();
+    }
+}
+
+function actualizarUI() {
+    if (heroe.vida < 0) heroe.vida = 0;
+    if (monstruo.vida < 0) monstruo.vida = 0;
+    
+    // AQUÍ ACTUALIZAMOS TODOS LOS NÚMEROS
+    document.getElementById('hero-hp').innerText = heroe.vida;
+    document.getElementById('monster-hp').innerText = monstruo.vida;
+    document.getElementById('hero-pots').innerText = heroe.pociones; // <--- ESTO FALTABA
+}
+
+function chequearFinal() {
+    if (heroe.vida <= 0 || monstruo.vida <= 0) {
+        clearInterval(timer);
+        if (heroe.vida > 0) {
+            logHTML("🏆 ¡VICTORIA! El monstruo ha caído.", "lime");
+            document.getElementById('monster-art').innerText = "x_x";
+        } else {
+            logHTML("💀 GAME OVER... Inténtalo de nuevo.", "red");
+            document.getElementById('hero-art').innerText = "x_x";
+        }
+    }
+}
+
+function iniciarCombate() {
+    // Reset de valores
+    heroe.vida = 100; heroe.pociones = 3;
+    monstruo.vida = 100;
+    
+    // Reset visual
+    document.getElementById('hero-art').innerText = " O \n/|\\\n/ \\";
+    document.getElementById('monster-art').innerText = "(ºOº)\n / \\ ";
+    document.getElementById('battle-log').innerHTML = "";
+    
+    actualizarUI();
+    
+    clearInterval(timer);
+    // Velocidad del turno (1.5 segundos)
+    timer = setInterval(turno, 1500);
+}
+</script>
+</body>
+</html>
