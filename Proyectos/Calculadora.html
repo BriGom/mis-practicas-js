@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+  <h2>Calculadora Suma</h2>
+  
+  <input type="number" id="caja1" placeholder="Número 1">
+  <input type="number" id="caja2" placeholder="Número 2">
+  
+  <button onclick="calcular()">Sumar</button>
+  <button onclick="restar()">Restar</button>
+  <p id="textoResultado">Resultado: 0</p>
+
+  <script>
+    function calcular() {
+      // 1. Buscamos los valores que escribiste
+      let n1 = document.getElementById('caja1').value;
+      let n2 = document.getElementById('caja2').value;
+
+      // 2. Convertimos el texto a números decimales (Float)
+      let numero1 = parseFloat(n1);
+      let numero2 = parseFloat(n2);
+
+      // 3. Sumamos
+      let suma = numero1 + numero2;
+
+      // 4. Mostramos el resultado en el párrafo
+      document.getElementById('textoResultado').innerText = "Resultado: " + suma;
+    }
+    
+    function restar() {
+      let n1 = document.getElementById('caja1').value;
+      let n2 = document.getElementById('caja2').value;
+      
+      let numero1 = parseFloat(n1);
+      let numero2 = parseFloat(n2);
+      
+      let resta = numero1 - numero2;
+      
+      document.getElementById('textoResultado').innerText = "Resultsdo: " + resta;
+    }
+  </script>
+
+</body>
+</html>
