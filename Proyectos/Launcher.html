@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Ultimate Dashboard</title>
+    <style>
+        :root {
+            --bg: #0f0f13;
+            --panel: #1a1b26;
+            --text: #a9b1d6;
+            --accent: #7aa2f7;
+            --func-btn: #e0af68;
+            --console: #050505;
+        }
+
+        body {
+            margin: 0;
+            font-family: monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* --- HEADER RESTAURADO --- */
+        h1 {
+            text-align: center;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin: 10px 0 20px 0;
+            text-transform: uppercase;
+            font-size: 1.8rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+        }
+
+        h1 span {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* --- Controles --- */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            background: var(--panel);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:active { background: var(--accent); color: var(--bg); }
+
+        input[type="file"] { display: none; }
+
+        /* --- Toolbox (Botones) --- */
+        #toolbox {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            min-height: 45px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #333;
+        }
+
+        .toolbox-label {
+            width: 100%;
+            font-size: 11px;
+            color: #555;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-func {
+            background: #232433;
+            color: var(--func-btn);
+            border: 1px solid var(--func-btn);
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        .btn-func:active { background: var(--func-btn); color: black; }
+
+        /* --- Consola --- */
+        #console-box {
+            flex-grow: 1;
+            background: var(--console);
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-size: 13px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .log-line { border-bottom: 1px solid #111; padding: 3px 0; word-wrap: break-word;}
+        .log-err { color: #f7768e; }
+        .log-sys { color: #bb9af7; font-style: italic; }
+        .log-usr { color: #9ece6a; font-weight: bold; }
+        .log-fun { color: var(--func-btn); }
+
+        /* --- Input --- */
+        #cmd-bar { display: flex; border: 1px solid #333; background: #111; padding: 8px; border-radius: 4px; }
+        #cmd-input { flex-grow: 1; background: transparent; border: none; color: white; padding: 0 10px; outline: none; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+    <h1>JS <span>Dashboard</span></h1>
+
+    <div class="controls">
+        <label class="btn">
+            📂 Cargar JS
+            <input type="file" id="fileInput">
+        </label>
+        <button class="btn" onclick="limpiarConsola()">🗑️ Limpiar</button>
+    </div>
+
+    <div id="toolbox">
+        <div class="toolbox-label">Panel de Funciones</div>
+    </div>
+
+    <div id="console-box">
+        <div class="log-line log-sys">Sistema listo. Esperando archivo...</div>
+    </div>
+
+    <div id="cmd-bar">
+        <span style="color:#9ece6a; margin-right:5px; font-weight:bold;">➜</span>
+        <input type="text" id="cmd-input" placeholder="Escribe comando..." autocomplete="off">
+    </div>
+
+    <script>
+        // --- 1. Referencias ---
+        var output = document.getElementById('console-box');
+        var inputC = document.getElementById('cmd-input');
+        var inputF = document.getElementById('fileInput');
+        var toolbox = document.getElementById('toolbox');
+
+        // --- 2. Memoria Base y Limpieza ---
+        var clavesNativas = []; 
+        var clavesUsuario = []; 
+
+        for (var k in window) { clavesNativas.push(k); }
+
+        function limpiarEntorno() {
+            // Eliminar funciones antiguas de la memoria
+            for (var i = 0; i < clavesUsuario.length; i++) {
+                var key = clavesUsuario[i];
+                try {
+                    delete window[key];
+                    window[key] = undefined;
+                } catch(e) {}
+            }
+            clavesUsuario = []; 
+            toolbox.innerHTML = '<div class="toolbox-label">Panel de Funciones</div>';
+        }
+
+        // --- 3. Logs ---
+        function log(msg, tipo) {
+            var div = document.createElement('div');
+            if (tipo === 'err') div.className = 'log-line log-err';
+            else if (tipo === 'sys') div.className = 'log-line log-sys';
+            else if (tipo === 'usr') div.className = 'log-line log-usr';
+            else if (tipo === 'fun') div.className = 'log-line log-fun';
+            else div.className = 'log-line';
+            
+            var txt = (typeof msg === 'object') ? JSON.stringify(msg, null, 2) : String(msg);
+            div.innerText = "> " + txt;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function limpiarConsola() {
+            output.innerHTML = '';
+            log("Consola limpia.", "sys");
+        }
+
+        console.log = function() {
+            var args = Array.from(arguments);
+            log(args.map(function(a){ return (typeof a==='object')?JSON.stringify(a):String(a); }).join(' '), 'norm');
+        };
+        console.error = function(m) { log("ERROR: " + m, 'err'); };
+
+        // --- 4. Detector Inteligente ---
+        function escanearFunciones() {
+            var encontradas = 0;
+
+            for (var clave in window) {
+                if (clavesNativas.indexOf(clave) === -1 && typeof window[clave] === 'function') {
+                    if (clave !== 'log' && clave !== 'limpiarConsola' && clave !== 'ejecutar' && clave !== 'escanearFunciones' && clave !== 'limpiarEntorno') {
+                        crearBoton(clave);
+                        clavesUsuario.push(clave); 
+                        encontradas++;
+                    }
+                }
+            }
+            
+            if (encontradas === 0) {
+                 toolbox.innerHTML += '<span style="color:#555; font-size:10px;">(Sin funciones globales)</span>';
+            }
+        }
+
+        function crearBoton(nombre) {
+            var btn = document.createElement('button');
+            btn.className = 'btn-func';
+            btn.innerText = nombre + "()";
+            btn.onclick = function() {
+                log("Ejecutando: " + nombre + "()", "sys");
+                try {
+                    var res = window[nombre]();
+                    if (res !== undefined) log("Retorno: " + res, "fun");
+                } catch(e) { log(e.toString(), "err"); }
+            };
+            toolbox.appendChild(btn);
+        }
+
+        function ejecutar(codigo) {
+            try {
+                window.eval(codigo);
+                setTimeout(escanearFunciones, 50); 
+            } catch (e) { log(e.toString(), 'err'); }
+        }
+
+        // --- 5. Eventos ---
+        inputF.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+
+            limpiarEntorno(); 
+            
+            log("--- Cargando: " + file.name + " ---", "sys");
+            var reader = new FileReader();
+            
+            reader.onload = function(evt) {
+                if(evt.target.result.length === 0) {
+                    log("⚠️ Archivo vacío (Recuerda guardar con Ctrl+S)", "err");
+                } else {
+                    ejecutar(evt.target.result);
+                }
+            };
+            
+            reader.readAsText(file);
+            inputF.value = '';
+        });
+
+        inputC.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && inputC.value !== "") {
+                log(inputC.value, 'usr');
+                ejecutar(inputC.value);
+                inputC.value = '';
+            }
+        });
+        
+        window.onerror = function(m,u,l) { log(m+" (L:"+l+")", 'err'); return true; };
+
+    </script>
+</body>
+</html>
