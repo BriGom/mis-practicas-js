@@ -12,6 +12,6 @@
 */
 
 function leerLibro() {
-  let libro = ['Fuego', 'Hielo', 'Rayo', 'Curar'];
+  const libro = ["Fuego", "Hielo", "Rayo", "Curar"];
   console.log(libro[0] + " y " + libro[2]);
 }

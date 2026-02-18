@@ -1,11 +1,11 @@
 function arena() {
   // 1. DEFINIR LOS LUCHADORES
-  let heroe = {
+  const heroe = {
     vida: 100,
     ataque: 20
   };
   
-  let monstruo = {
+  const monstruo = {
     vida: 100,
     ataque: 15
   };
@@ -22,8 +22,8 @@ function arena() {
 
     // El Monstruo pega (si sigue vivo)
     if (monstruo.vida > 0) {
-       heroe.vida = heroe.vida - monstruo.ataque;
-       console.log("Monstruo ataca. Héroe baja a: " + heroe.vida + " PV");
+      heroe.vida = heroe.vida - monstruo.ataque;
+      console.log("Monstruo ataca. Héroe baja a: " + heroe.vida + " PV");
     }
     
     console.log("------------------------");
@@ -44,24 +44,24 @@ function rngArena() {
     return Math.floor(Math.random() * 20) + 1;
   }
 
-  let heroe = { vida: 100 };
-  let monstruo = { vida: 100 };
+  const heroe = { vida: 100 };
+  const monstruo = { vida: 100 };
 
   console.log("--- INICIA EL COMBATE ALEATORIO ---");
 
   while (heroe.vida > 0 && monstruo.vida > 0) {
     
     // Héroe ataca con daño variable (1-20)
-    let golpeH = d20(); 
+    const golpeH = d20(); 
     monstruo.vida = monstruo.vida - golpeH;
     console.log("Héroe hace " + golpeH + " de daño. Monstruo: " + monstruo.vida);
 
     // Si el monstruo sigue vivo, contrataca
     if (monstruo.vida > 0) {
-       // Vamos a darle un bonus al monstruo (+5) para que sea peligroso
-       let golpeM = d20() + 5; 
-       heroe.vida = heroe.vida - golpeM;
-       console.log("Monstruo hace " + golpeM + " de daño. Héroe: " + heroe.vida);
+      // Vamos a darle un bonus al monstruo (+5) para que sea peligroso
+      const golpeM = d20() + 5; 
+      heroe.vida = heroe.vida - golpeM;
+      console.log("Monstruo hace " + golpeM + " de daño. Héroe: " + heroe.vida);
     }
   }
 
@@ -77,8 +77,8 @@ function rngArena() {
 function rngArenaPot() {
   function d20() { return Math.floor(Math.random() * 20) + 1; }
 
-  let heroe = { vida: 100, pociones: 3 }; // Damos 3 pociones
-  let monstruo = { vida: 100 };
+  const heroe = { vida: 100, pociones: 3 }; // Damos 3 pociones
+  const monstruo = { vida: 100 };
 
   console.log("--- PELEA CON POCIONES ---");
 
@@ -93,16 +93,16 @@ function rngArenaPot() {
       
     } else {
       // Si está bien de vida, ataca
-      let dano = d20();
+      const dano = d20();
       monstruo.vida -= dano;
       console.log("⚔️ Héroe ataca: " + dano + " daño.");
     }
 
     // --- TURNO DEL MONSTRUO ---
     if (monstruo.vida > 0) {
-       let danoM = d20() + 2; // Bajamos un poco el cheat del monstruo
-       heroe.vida -= danoM;
-       console.log("👹 Monstruo pega: " + danoM + " daño. (Héroe: " + heroe.vida + ")");
+      const danoM = d20() + 2; // Bajamos un poco el cheat del monstruo
+      heroe.vida -= danoM;
+      console.log("👹 Monstruo pega: " + danoM + " daño. (Héroe: " + heroe.vida + ")");
     }
     
     console.log("------------------");

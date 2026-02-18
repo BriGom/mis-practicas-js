@@ -14,12 +14,12 @@
 */
 
 function crearEnemigo(){
-  let dragon = {
+  const dragon = {
     color: "Rojo",
     vida: 100,
     rugir: function() {
       console.log("¡El dragón " + this.color + " ruge con " + this.vida + " de vida!");
     }
-  }
+  };
   dragon.rugir();
 }

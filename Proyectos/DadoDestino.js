@@ -14,9 +14,9 @@
 function evaluarTirada() {
   const dado = Math.floor(Math.random() * 20) + 1;
   
-  if (dado == 20) {
+  if (dado === 20) {
     console.log(dado +": ¡Éxito crítico!, Daño doble");
-  } else if (dado == 1) {
+  } else if (dado === 1) {
     console.log("¡Pifia! Te golpeas a tí mismo...");
   } else {
     console.log(dado + ": Tirada normal");
