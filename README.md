@@ -31,6 +31,7 @@ Grimorio para almacenar y consultar hechizos (`function leerLibro`).
 
 ---
 *Progreso constante. Nivel 1 en desarrollo.* 🚀
+
 ---
 
 ## 🛠️ Herramientas y Calidad (Tooling)
