@@ -31,3 +31,25 @@ Grimorio para almacenar y consultar hechizos (`function leerLibro`).
 
 ---
 *Progreso constante. Nivel 1 en desarrollo.* 🚀
+---
+
+## 🛠️ Herramientas y Calidad (Tooling)
+
+Para asegurar que el código sea digno de un archimago, he implementado **ESLint** (v10+) con una configuración estricta y multiplataforma.
+
+### 📜 Las Reglas del Reino (ESLint Config)
+El código debe cumplir los siguientes mandamientos para pasar la prueba:
+- **Indentación:** 2 espacios (Estándar moderno).
+- **Puntuación:** Punto y coma (`;`) obligatorio al final de cada sentencia.
+- **Citas:** Comillas dobles (`" "`) para strings.
+- **Declaraciones:** Preferencia absoluta por `const` sobre `let`.
+- **Igualdad:** Uso estricto de `===` (la magia segura).
+
+### 🔮 Comandos Mágicos (Scripts)
+He configurado `package.json` para que funcione tanto en **PC (VS Code)** como en **Android (Termux/Acode)** sin problemas de permisos.
+
+- `npm run lint`: **🕵️‍♂️ El Ojo que Todo lo Ve.** Analiza el código en busca de errores y malas prácticas sin modificar nada.
+- `npm run fix`: **🧹 El hechizo de Reparación.** Analiza el código y **arregla automáticamente** problemas de formato (espacios, comillas, puntos y coma) y guarda los cambios.
+
+---
+*Configuración probada en Node.js v25+ (PC) y Termux (Android).*
