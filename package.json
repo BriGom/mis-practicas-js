@@ -1,12 +1,13 @@
 {
   "type": "module",
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "node node_modules/eslint/bin/eslint.js .",
+    "fix": "node node_modules/eslint/bin/eslint.js . --fix"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.0.0",
     "globals": "^17.3.0"
+    
   }
 }
